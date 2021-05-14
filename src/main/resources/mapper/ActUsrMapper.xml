@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.self.mapper.ActUsrMapper">
+  <resultMap id="BaseResultMap" type="cn.com.self.domain.ActUsr">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="act_id" jdbcType="VARCHAR" property="actId" />
+    <id column="user_id" jdbcType="VARCHAR" property="userId" />
+    <result column="cardnum1" jdbcType="INTEGER" property="cardnum1" />
+    <result column="cardnum2" jdbcType="INTEGER" property="cardnum2" />
+    <result column="cardnum3" jdbcType="INTEGER" property="cardnum3" />
+    <result column="cardnum4" jdbcType="INTEGER" property="cardnum4" />
+    <result column="cardnum5" jdbcType="INTEGER" property="cardnum5" />
+    <result column="card_draw_nums" jdbcType="INTEGER" property="cardDrawNums" />
+    <result column="first_share" jdbcType="VARCHAR" property="firstShare" />
+  </resultMap>
+</mapper>

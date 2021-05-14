@@ -1,0 +1,356 @@
+package cn.com.self.controller;
+
+import cn.com.self.domain.TbSysUser;
+import cn.com.self.domain.User;
+import cn.com.self.dto.BaseResult;
+import cn.com.self.service.AdminService;
+import com.google.common.collect.Lists;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import com.alibaba.fastjson.JSONObject;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.UUID;
+import java.text.ParseException;
+
+@RestController
+public class AdminController {
+
+    @Autowired
+    private AdminService adminService;
+
+
+
+    @RequestMapping(value = "test",method = RequestMethod.GET)
+    public String test(String test){
+        return "test";
+    }
+
+
+    @RequestMapping(value = "userCheck",method = RequestMethod.POST)
+    public String userCheck(@RequestParam(value = "userID") String userId){
+        JSONObject response = new JSONObject();
+        JSONObject data = new JSONObject();
+        String resultcode = adminService.checkUser(userId);
+        if(resultcode.equals("200")){
+            response.put("code",resultcode);
+            response.put("desc","请求成功");
+            data.put("code",1);
+            data.put("desc","用户名未占用");
+            response.put("data",data);
+
+        }
+        else if(resultcode.equals("403")){
+            response.put("code","200");
+            response.put("desc","请求成功");
+            data.put("code",0);
+            data.put("desc","用户名已占用");
+            response.put("data",data);
+        }
+        else {
+            response.put("code","500");
+            response.put("desc","server error");
+        }
+        return response.toJSONString();
+    }
+
+
+    @RequestMapping(value = "register",method = RequestMethod.POST)
+    public String register(@RequestParam(value = "userID")String userId,
+                           @RequestParam(value = "userName")String userName,
+                           @RequestParam(value = "password")String password,
+                           @RequestParam(value = "gender")Integer gender,
+                           @RequestParam(value = "group")Integer group,
+                           @RequestParam(value = "phoneNum")String phoneNum) throws ParseException {
+
+        JSONObject response = new JSONObject();
+        JSONObject data = new JSONObject();
+        if(userId.equals("")){
+            response.put("code","403");
+            response.put("desc","请填写用户名");
+            return response.toJSONString();
+        }
+        if(userName.equals("")){
+            response.put("code","403");
+            response.put("desc","请填写昵称");
+            return response.toJSONString();
+        }
+        if(password.equals("")){
+            response.put("code","403");
+            response.put("desc","请填写密码");
+            return response.toJSONString();
+        }
+        if(gender.equals("")){
+            response.put("code","403");
+            response.put("desc","请填写性别");
+            return response.toJSONString();
+        }
+        String checkIdStatus = adminService.checkUser(userId);
+        if(checkIdStatus.equals("403")||checkIdStatus.equals("500")){
+            response.put("code",checkIdStatus);
+            response.put("desc","检查用户名唯一失败");
+            return response.toJSONString();
+        }
+
+        User user = new User();
+        user.setUserId(userId);
+        user.setName(userName);
+        user.setPassword(password);
+        user.setGender(gender.toString());
+        user.setUserGroup(group.toString());
+        user.setPhoneNum(phoneNum);
+        user.setRegisterTime(new Date(System.currentTimeMillis()));
+        user.setLoginFlag("0");
+        user.setToken(UUID.randomUUID().toString().replace("-",""));
+        DateFormat dateFormat2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date tokenExpTime = dateFormat2.parse("2099-12-31 00:00:00");
+        user.setTokenExptime(tokenExpTime);
+
+        try{
+            String registerStatus = adminService.register(user);
+            if(registerStatus.equals("200")){
+                response.put("code","200");
+                response.put("desc","请求成功");
+                data.put("code",1);
+                data.put("desc","注册成功");
+
+
+            }
+            else{
+                response.put("code","200");
+                response.put("desc","请求成功");
+                data.put("code",0);
+                data.put("desc","注册失败");
+            }
+            return response.toJSONString();
+        }
+        catch (Exception e){
+            System.out.println(e);
+            response.put("code","500");
+            response.put("desc","注册服务错误");
+            return response.toJSONString();
+        }
+
+
+    }
+
+    @RequestMapping(value = "login",method = RequestMethod.POST)
+    public String login(@RequestParam(value = "userID")String userId,
+                        @RequestParam(value = "password")String password){
+
+        JSONObject response = new JSONObject();
+        JSONObject data = new JSONObject();
+        if(userId.equals("")){
+            response.put("code","403");
+            response.put("desc","请填写用户名");
+            return response.toJSONString();
+        }
+        if(password.equals("")){
+            response.put("code","403");
+            response.put("desc","请填写密码");
+            return response.toJSONString();
+        }
+        try{
+            User user = adminService.getUserById(userId);
+            if(user==null){
+                response.put("code","200");
+                response.put("desc","请求成功");
+                data.put("code",0);
+                data.put("desc","登陆失败，无此用户");
+                response.put("data",data);
+                return response.toJSONString();
+            }
+            if(user.getPassword().equals(password)){
+                response.put("code","200");
+                response.put("desc","请求成功");
+                data.put("code",1);
+                data.put("desc","登陆成功");
+                data.put("token",user.getToken());
+                data.put("group",user.getUserGroup());
+                data.put("username",user.getName());
+                response.put("data",data);
+                return response.toJSONString();
+            }
+            else {
+                response.put("code","200");
+                response.put("desc","请求成功");
+                data.put("code",0);
+                data.put("desc","登陆失败，密码错误");
+                response.put("data",data);
+                return response.toJSONString();
+            }
+        } catch (Exception e){
+            System.out.println(e);
+            response.put("code","500");
+            response.put("desc","登陆服务错误");
+            return response.toJSONString();
+        }
+    }
+
+
+    @RequestMapping(value = "getInfo", method = RequestMethod.GET)
+    public String getInfo(@RequestParam(value = "userID")String userId,
+                          @RequestParam(value = "token")String token){
+
+        JSONObject response = new JSONObject();
+        JSONObject data = new JSONObject();
+
+        if(userId.equals("")){
+            response.put("code","403");
+            response.put("desc","请填写用户名");
+            return response.toJSONString();
+        }
+        if(token.equals("")){
+            response.put("code","403");
+            response.put("desc","请填写token");
+            return response.toJSONString();
+        }
+
+        try{
+            User user = adminService.getUserById(userId);
+            if(user==null){
+                response.put("code","200");
+                response.put("desc","请求成功");
+                data.put("code",0);
+                data.put("desc","查询失败，无此用户");
+                response.put("data",data);
+                return response.toJSONString();
+            }
+            if(user.getToken().equals(token)){
+                response.put("code","200");
+                response.put("desc","请求成功");
+                data.put("code",1);
+                data.put("desc","查询成功");
+                data.put("userID",user.getUserId());
+                data.put("userName",user.getName());
+                data.put("gender",user.getGender());
+                data.put("phoneNum",user.getPhoneNum());
+                data.put("registerTime",user.getRegisterTime());
+                response.put("data",data);
+                return response.toJSONString();
+            }
+            else {
+                response.put("code","200");
+                response.put("desc","请求成功");
+                data.put("code",0);
+                data.put("desc","查询失败，token错误");
+                response.put("data",data);
+                return response.toJSONString();
+            }
+        }catch (Exception e){
+            System.out.println(e);
+            response.put("code","500");
+            response.put("desc","查询服务出错");
+            return response.toJSONString();
+        }
+    }
+
+    @RequestMapping(value = "editInfo", method = RequestMethod.POST)
+    public String editInfo(@RequestParam(value = "userID")String userId,
+                           @RequestParam(value = "userName")String userName,
+                           @RequestParam(value = "password")String password,
+                           @RequestParam(value = "gender")Integer gender,
+                           @RequestParam(value = "group")Integer group,
+                           @RequestParam(value = "phoneNum")String phoneNum,
+                           @RequestParam(value = "token")String token){
+
+        JSONObject response = new JSONObject();
+        JSONObject data = new JSONObject();
+
+        try{
+            User user = adminService.getUserById(userId);
+            if(!user.getToken().equals(token)){
+                response.put("code","200");
+                response.put("desc","请求成功");
+                data.put("code",0);
+                data.put("desc","修改失败，token错误");
+                response.put("data",data);
+                return response.toJSONString();
+            }
+            if(!userName.equals("")){
+                user.setName(userName);
+            }
+            if(!password.equals("")) {
+                user.setPassword(password);
+            }
+            if(!gender.equals("")){
+                user.setGender(gender.toString());
+            }
+            if(!group.equals("")){
+                user.setUserGroup(group.toString());
+            }
+            if(!phoneNum.equals("")){
+                user.setPhoneNum(phoneNum);
+            }
+            int editResult = adminService.editUser(user);
+
+            if (editResult==999){
+                response.put("code","500");
+                response.put("desc","修改服务出错");
+            }
+            else {
+                response.put("code","200");
+                response.put("desc","请求成功");
+                data.put("code",1);
+                data.put("desc","查询成功");
+                data.put("userID",user.getUserId());
+                data.put("userName",user.getName());
+                data.put("gender",user.getGender());
+                data.put("phoneNum",user.getPhoneNum());
+                data.put("registerTime",user.getRegisterTime());
+                response.put("data",data);
+            }
+            return response.toJSONString();
+        }catch (Exception e){
+            response.put("code","500");
+            response.put("desc","修改服务出错");
+            return response.toJSONString();
+        }
+    }
+
+
+    /*@RequestMapping(value = "login", method = RequestMethod.GET)
+    public String login(String loginCode, String password){
+        BaseResult baseResult = checkLogin(loginCode, password);  //检查账号和密码是否为空
+        if(baseResult != null) return baseResult;
+
+        TbSysUser tbSysUser = adminService.login(loginCode, password);
+
+        if(tbSysUser != null){  //登录成功
+            return BaseResult.ok(tbSysUser);
+        }
+        else {  //登录失败
+            return BaseResult.notOk(Lists.newArrayList(
+                    new BaseResult.Error("", "登录失败")
+            ));
+        }
+    }*/
+
+
+    /*private BaseResult checkLogin(String loginCode, String password){  //
+        BaseResult baseResult = null;
+
+        if(StringUtils.isBlank(loginCode) || StringUtils.isBlank(password)){
+            baseResult = new BaseResult().notOk(Lists.newArrayList(
+                    new BaseResult.Error("loginError","账号或密码为空")
+            ));
+        }
+
+        return baseResult;
+    }*/
+
+    /*@RequestMapping(value = "register", method = RequestMethod.POST)
+    public String register(String userID, String userName, String passWord, int gender, String phoneNum){
+        JSONObject result = new JSONObject();
+
+
+
+        return result.toJSONString();
+    }*/
+}
