@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>cn.com.self</groupId>
-    <artifactId>springboot</artifactId>
+    <artifactId>jika</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>jika</name>
     <description>jika</description>
