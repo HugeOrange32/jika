@@ -34,7 +34,7 @@ public class AdminController {
 
 
     @RequestMapping(value = "userCheck",method = RequestMethod.POST)
-    public String userCheck(@RequestParam(value = "userID") String userId){
+    public String userCheck(@RequestParam(value = "userId") String userId){
         JSONObject response = new JSONObject();
         JSONObject data = new JSONObject();
         String resultcode = adminService.checkUser(userId);
@@ -62,7 +62,7 @@ public class AdminController {
 
 
     @RequestMapping(value = "register",method = RequestMethod.POST)
-    public String register(@RequestParam(value = "userID")String userId,
+    public String register(@RequestParam(value = "userId")String userId,
                            @RequestParam(value = "userName")String userName,
                            @RequestParam(value = "password")String password,
                            @RequestParam(value = "gender")Integer gender,
@@ -141,7 +141,7 @@ public class AdminController {
     }
 
     @RequestMapping(value = "login",method = RequestMethod.POST)
-    public String login(@RequestParam(value = "userID")String userId,
+    public String login(@RequestParam(value = "userId")String userId,
                         @RequestParam(value = "password")String password){
 
         JSONObject response = new JSONObject();
@@ -195,7 +195,7 @@ public class AdminController {
 
 
     @RequestMapping(value = "getInfo", method = RequestMethod.GET)
-    public String getInfo(@RequestParam(value = "userID")String userId,
+    public String getInfo(@RequestParam(value = "userId")String userId,
                           @RequestParam(value = "token")String token){
 
         JSONObject response = new JSONObject();
@@ -227,7 +227,7 @@ public class AdminController {
                 response.put("desc","请求成功");
                 data.put("code",1);
                 data.put("desc","查询成功");
-                data.put("userID",user.getUserId());
+                data.put("userId",user.getUserId());
                 data.put("userName",user.getName());
                 data.put("gender",user.getGender());
                 data.put("phoneNum",user.getPhoneNum());
@@ -252,7 +252,7 @@ public class AdminController {
     }
 
     @RequestMapping(value = "editInfo", method = RequestMethod.POST)
-    public String editInfo(@RequestParam(value = "userID")String userId,
+    public String editInfo(@RequestParam(value = "userId")String userId,
                            @RequestParam(value = "userName")String userName,
                            @RequestParam(value = "password")String password,
                            @RequestParam(value = "gender")Integer gender,
@@ -299,7 +299,7 @@ public class AdminController {
                 response.put("desc","请求成功");
                 data.put("code",1);
                 data.put("desc","查询成功");
-                data.put("userID",user.getUserId());
+                data.put("userId",user.getUserId());
                 data.put("userName",user.getName());
                 data.put("gender",user.getGender());
                 data.put("phoneNum",user.getPhoneNum());
@@ -315,42 +315,4 @@ public class AdminController {
     }
 
 
-    /*@RequestMapping(value = "login", method = RequestMethod.GET)
-    public String login(String loginCode, String password){
-        BaseResult baseResult = checkLogin(loginCode, password);  //检查账号和密码是否为空
-        if(baseResult != null) return baseResult;
-
-        TbSysUser tbSysUser = adminService.login(loginCode, password);
-
-        if(tbSysUser != null){  //登录成功
-            return BaseResult.ok(tbSysUser);
-        }
-        else {  //登录失败
-            return BaseResult.notOk(Lists.newArrayList(
-                    new BaseResult.Error("", "登录失败")
-            ));
-        }
-    }*/
-
-
-    /*private BaseResult checkLogin(String loginCode, String password){  //
-        BaseResult baseResult = null;
-
-        if(StringUtils.isBlank(loginCode) || StringUtils.isBlank(password)){
-            baseResult = new BaseResult().notOk(Lists.newArrayList(
-                    new BaseResult.Error("loginError","账号或密码为空")
-            ));
-        }
-
-        return baseResult;
-    }*/
-
-    /*@RequestMapping(value = "register", method = RequestMethod.POST)
-    public String register(String userID, String userName, String passWord, int gender, String phoneNum){
-        JSONObject result = new JSONObject();
-
-
-
-        return result.toJSONString();
-    }*/
 }
