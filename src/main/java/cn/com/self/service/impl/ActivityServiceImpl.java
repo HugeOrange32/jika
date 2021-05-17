@@ -31,6 +31,7 @@ public class ActivityServiceImpl implements ActivityService {
     @Autowired
     private ActivityMapper activityMapper;
 
+    @Override
     public List<Activity> getAllActivity(){
         List<Activity> result = new ArrayList<Activity>();
         try {
@@ -42,6 +43,7 @@ public class ActivityServiceImpl implements ActivityService {
         return result;
     }
 
+    @Override
     public List<Activity> getActivity(String title, Date startTime, Date endTime){
         List<Activity> result = new ArrayList<Activity>();
         Example example = new Example(Activity.class);
@@ -60,6 +62,7 @@ public class ActivityServiceImpl implements ActivityService {
         return result;
     }
 
+    @Override
     public Activity getActivityById(String actId){
 
         try{
@@ -71,6 +74,8 @@ public class ActivityServiceImpl implements ActivityService {
         }
     }
 
+
+    @Override
     public Integer editActivity(Activity activity){
         Integer result = 999;
         try{
@@ -80,6 +85,18 @@ public class ActivityServiceImpl implements ActivityService {
             return result;
         }
         return result;
+    }
+
+
+    @Override
+    @Transactional(readOnly = false)
+    public String addActivity(Activity activity){
+        try{
+            Integer result = activityMapper.insert(activity);
+            return "200";
+        }catch (Exception e){
+            return "403";
+        }
     }
 
 

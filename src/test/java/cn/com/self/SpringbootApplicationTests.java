@@ -55,10 +55,10 @@ public class SpringbootApplicationTests {
         System.out.println(adminService.register(user));
     }
 
-    @Test
+    /*@Test
     public void login() {
         TbSysUser tbSysUser = adminService.login("admin@test.com", "123456");
         Assert.assertNotNull(tbSysUser);
-    }
+    }*/
 
 }

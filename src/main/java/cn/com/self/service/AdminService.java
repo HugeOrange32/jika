@@ -39,5 +39,5 @@ public interface AdminService {
      * @param account
      * @param password
      */
-    public TbSysUser login(String account, String password);
+   /* public TbSysUser login(String account, String password);*/
 }

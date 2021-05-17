@@ -36,6 +36,16 @@ public interface ActivityService {
     public Integer editActivity(Activity activity);
 
 
+    /**
+     * 添加活动
+     * @param activity
+     */
+    public String addActivity(Activity activity);
+
+
+
+
+
 
 
 

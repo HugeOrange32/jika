@@ -70,6 +70,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    @Transactional(readOnly = false)
     public int editUser(User user){
         try{
             int result = userMapper.updateByPrimaryKey(user);
@@ -81,7 +82,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
 
-    @Override
+    /*@Override
     public TbSysUser login(String loginCode, String password) {
         Example example = new Example(TbSysUser.class);
         example.createCriteria().andEqualTo("loginCode", loginCode);
@@ -98,5 +99,5 @@ public class AdminServiceImpl implements AdminService {
             return tbSysUser;
         }
         return null;
-    }
+    }*/
 }
