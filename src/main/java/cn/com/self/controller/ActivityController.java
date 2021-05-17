@@ -5,12 +5,11 @@ import cn.com.self.domain.Activity;
 import cn.com.self.domain.User;
 import cn.com.self.service.ActivityService;
 import cn.com.self.service.AdminService;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import org.graalvm.compiler.java.JsrNotSupportedBailout;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import tk.mybatis.mapper.entity.Example;
 
 import java.io.IOException;
@@ -76,13 +75,16 @@ public class ActivityController {
     }
 
     @RequestMapping(value = "upActivity",method = RequestMethod.POST)
-    public String upActivity(@RequestParam(value = "userId")String userId,
-                             @RequestParam(value = "token")String token,
-                             @RequestParam(value = "upList")List<String> upList){
+    public String upActivity(@RequestBody JSONObject accept){
 
         JSONObject response = new JSONObject();
         //JSONObject data = new JSONObject();
         List<Activity> upSuccess = new ArrayList<Activity>();
+        String userId = accept.getString("userId");
+        String token = accept.getString("token");
+        List<String> upList = new ArrayList<String>();
+        JSONArray upJson = accept.getJSONArray("upList");
+        upList = JSONObject.parseArray(upJson.toJSONString(),String.class);
 
         if(userId.equals("")||token.equals("")){
             response.put("code","403");
@@ -137,13 +139,17 @@ public class ActivityController {
     }
 
     @RequestMapping(value = "downActivity",method = RequestMethod.POST)
-    public String downActivity(@RequestParam(value = "userId")String userId,
-                             @RequestParam(value = "token")String token,
-                             @RequestParam(value = "downList")List<String> downList){
+    public String downActivity(@RequestBody JSONObject accept){
 
         JSONObject response = new JSONObject();
         //JSONObject data = new JSONObject();
         List<Activity> downSuccess = new ArrayList<Activity>();
+
+        String userId = accept.getString("userId");
+        String token = accept.getString("token");
+        List<String> downList = new ArrayList<String>();
+        JSONArray downJson = accept.getJSONArray("upList");
+        downList = JSONObject.parseArray(downJson.toJSONString(),String.class);
 
         if(userId.equals("")||token.equals("")){
             response.put("code","403");

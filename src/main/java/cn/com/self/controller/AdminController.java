@@ -6,13 +6,12 @@ import cn.com.self.dto.BaseResult;
 import cn.com.self.service.AdminService;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
+import org.checkerframework.common.util.report.qual.ReportWrite;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import com.alibaba.fastjson.JSONObject;
 
+import javax.servlet.http.HttpSession;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -33,7 +32,7 @@ public class AdminController {
     }
 
 
-    @RequestMapping(value = "userCheck",method = RequestMethod.POST)
+    @RequestMapping(value = "userCheck",method = RequestMethod.GET)
     public String userCheck(@RequestParam(value = "userId") String userId){
         JSONObject response = new JSONObject();
         JSONObject data = new JSONObject();
@@ -62,15 +61,18 @@ public class AdminController {
 
 
     @RequestMapping(value = "register",method = RequestMethod.POST)
-    public String register(@RequestParam(value = "userId")String userId,
-                           @RequestParam(value = "userName")String userName,
-                           @RequestParam(value = "password")String password,
-                           @RequestParam(value = "gender")Integer gender,
-                           @RequestParam(value = "group")Integer group,
-                           @RequestParam(value = "phoneNum")String phoneNum) throws ParseException {
-
+    @ResponseBody
+    public String register(HttpSession httpSession,
+                           @RequestBody JSONObject accept) throws ParseException {
         JSONObject response = new JSONObject();
         JSONObject data = new JSONObject();
+        //JSONObject accept = JSONObject.parseObject(acceptString);
+        String userId = accept.getString("userId");
+        String userName = accept.getString("userName");
+        String password = accept.getString("password");
+        Integer gender = accept.getInteger("gender");
+        Integer group = accept.getInteger("group");
+        String phoneNum = accept.getString("phoneNum");
         if(userId.equals("")){
             response.put("code","403");
             response.put("desc","请填写用户名");
@@ -141,11 +143,12 @@ public class AdminController {
     }
 
     @RequestMapping(value = "login",method = RequestMethod.POST)
-    public String login(@RequestParam(value = "userId")String userId,
-                        @RequestParam(value = "password")String password){
+    public String login(@RequestBody JSONObject accept){
 
         JSONObject response = new JSONObject();
         JSONObject data = new JSONObject();
+        String userId = accept.getString("userId");
+        String password = accept.getString("password");
         if(userId.equals("")){
             response.put("code","403");
             response.put("desc","请填写用户名");
@@ -252,16 +255,17 @@ public class AdminController {
     }
 
     @RequestMapping(value = "editInfo", method = RequestMethod.POST)
-    public String editInfo(@RequestParam(value = "userId")String userId,
-                           @RequestParam(value = "userName")String userName,
-                           @RequestParam(value = "password")String password,
-                           @RequestParam(value = "gender")Integer gender,
-                           @RequestParam(value = "group")Integer group,
-                           @RequestParam(value = "phoneNum")String phoneNum,
-                           @RequestParam(value = "token")String token){
+    public String editInfo(@RequestBody JSONObject accept){
 
         JSONObject response = new JSONObject();
         JSONObject data = new JSONObject();
+        String userId = accept.getString("userId");
+        String userName = accept.getString("userName");
+        String password = accept.getString("password");
+        Integer gender = accept.getInteger("gender");
+        Integer group = accept.getInteger("group");
+        String phoneNum = accept.getString("phoneNum");
+        String token = accept.getString("token");
 
         try{
             User user = adminService.getUserById(userId);
