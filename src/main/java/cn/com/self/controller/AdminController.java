@@ -38,7 +38,7 @@ public class AdminController {
         JSONObject data = new JSONObject();
         String resultcode = adminService.checkUser(userId);
         if(resultcode.equals("200")){
-            response.put("code",resultcode);
+            response.put("code",200);
             response.put("desc","请求成功");
             data.put("code",1);
             data.put("desc","用户名未占用");
@@ -46,14 +46,14 @@ public class AdminController {
 
         }
         else if(resultcode.equals("403")){
-            response.put("code","200");
+            response.put("code",200);
             response.put("desc","请求成功");
             data.put("code",0);
             data.put("desc","用户名已占用");
             response.put("data",data);
         }
         else {
-            response.put("code","500");
+            response.put("code",500);
             response.put("desc","server error");
         }
         return response.toJSONString();
@@ -74,22 +74,22 @@ public class AdminController {
         Integer group = accept.getInteger("group");
         String phoneNum = accept.getString("phoneNum");
         if(userId.equals("")){
-            response.put("code","403");
+            response.put("code",403);
             response.put("desc","请填写用户名");
             return response.toJSONString();
         }
         if(userName.equals("")){
-            response.put("code","403");
+            response.put("code",403);
             response.put("desc","请填写昵称");
             return response.toJSONString();
         }
         if(password.equals("")){
-            response.put("code","403");
+            response.put("code",403);
             response.put("desc","请填写密码");
             return response.toJSONString();
         }
         if(gender.equals("")){
-            response.put("code","403");
+            response.put("code",403);
             response.put("desc","请填写性别");
             return response.toJSONString();
         }
@@ -117,24 +117,24 @@ public class AdminController {
         try{
             String registerStatus = adminService.register(user);
             if(registerStatus.equals("200")){
-                response.put("code","200");
+                response.put("code",200);
                 response.put("desc","请求成功");
                 data.put("code",1);
                 data.put("desc","注册成功");
 
-
             }
             else{
-                response.put("code","200");
+                response.put("code",200);
                 response.put("desc","请求成功");
                 data.put("code",0);
                 data.put("desc","注册失败");
             }
+            response.put("data",data);
             return response.toJSONString();
         }
         catch (Exception e){
             System.out.println(e);
-            response.put("code","500");
+            response.put("code",500);
             response.put("desc","注册服务错误");
             return response.toJSONString();
         }
@@ -150,19 +150,19 @@ public class AdminController {
         String userId = accept.getString("userId");
         String password = accept.getString("password");
         if(userId.equals("")){
-            response.put("code","403");
+            response.put("code",403);
             response.put("desc","请填写用户名");
             return response.toJSONString();
         }
         if(password.equals("")){
-            response.put("code","403");
+            response.put("code",403);
             response.put("desc","请填写密码");
             return response.toJSONString();
         }
         try{
             User user = adminService.getUserById(userId);
             if(user==null){
-                response.put("code","200");
+                response.put("code",200);
                 response.put("desc","请求成功");
                 data.put("code",0);
                 data.put("desc","登陆失败，无此用户");
@@ -170,18 +170,18 @@ public class AdminController {
                 return response.toJSONString();
             }
             if(user.getPassword().equals(password)){
-                response.put("code","200");
+                response.put("code",200);
                 response.put("desc","请求成功");
                 data.put("code",1);
                 data.put("desc","登陆成功");
                 data.put("token",user.getToken());
                 data.put("group",user.getUserGroup());
-                data.put("username",user.getName());
+                data.put("userName",user.getName());
                 response.put("data",data);
                 return response.toJSONString();
             }
             else {
-                response.put("code","200");
+                response.put("code",200);
                 response.put("desc","请求成功");
                 data.put("code",0);
                 data.put("desc","登陆失败，密码错误");
@@ -190,7 +190,7 @@ public class AdminController {
             }
         } catch (Exception e){
             System.out.println(e);
-            response.put("code","500");
+            response.put("code",500);
             response.put("desc","登陆服务错误");
             return response.toJSONString();
         }
@@ -205,12 +205,12 @@ public class AdminController {
         JSONObject data = new JSONObject();
 
         if(userId.equals("")){
-            response.put("code","403");
+            response.put("code",403);
             response.put("desc","请填写用户名");
             return response.toJSONString();
         }
         if(token.equals("")){
-            response.put("code","403");
+            response.put("code",403);
             response.put("desc","请填写token");
             return response.toJSONString();
         }
@@ -218,7 +218,7 @@ public class AdminController {
         try{
             User user = adminService.getUserById(userId);
             if(user==null){
-                response.put("code","200");
+                response.put("code",200);
                 response.put("desc","请求成功");
                 data.put("code",0);
                 data.put("desc","查询失败，无此用户");
@@ -226,7 +226,7 @@ public class AdminController {
                 return response.toJSONString();
             }
             if(user.getToken().equals(token)){
-                response.put("code","200");
+                response.put("code",200);
                 response.put("desc","请求成功");
                 data.put("code",1);
                 data.put("desc","查询成功");
@@ -239,7 +239,7 @@ public class AdminController {
                 return response.toJSONString();
             }
             else {
-                response.put("code","200");
+                response.put("code",200);
                 response.put("desc","请求成功");
                 data.put("code",0);
                 data.put("desc","查询失败，token错误");
@@ -248,7 +248,7 @@ public class AdminController {
             }
         }catch (Exception e){
             System.out.println(e);
-            response.put("code","500");
+            response.put("code",500);
             response.put("desc","查询服务出错");
             return response.toJSONString();
         }
@@ -270,7 +270,7 @@ public class AdminController {
         try{
             User user = adminService.getUserById(userId);
             if(!user.getToken().equals(token)){
-                response.put("code","200");
+                response.put("code",200);
                 response.put("desc","请求成功");
                 data.put("code",0);
                 data.put("desc","修改失败，token错误");
@@ -283,10 +283,10 @@ public class AdminController {
             if(!password.equals("")) {
                 user.setPassword(password);
             }
-            if(!gender.equals("")){
+            if(gender!=null){
                 user.setGender(gender.toString());
             }
-            if(!group.equals("")){
+            if(group!=null){
                 user.setUserGroup(group.toString());
             }
             if(!phoneNum.equals("")){
@@ -295,11 +295,12 @@ public class AdminController {
             int editResult = adminService.editUser(user);
 
             if (editResult==999){
-                response.put("code","500");
+
+                response.put("code",500);
                 response.put("desc","修改服务出错");
             }
             else {
-                response.put("code","200");
+                response.put("code",200);
                 response.put("desc","请求成功");
                 data.put("code",1);
                 data.put("desc","查询成功");
@@ -312,8 +313,9 @@ public class AdminController {
             }
             return response.toJSONString();
         }catch (Exception e){
-            response.put("code","500");
+            response.put("code",500);
             response.put("desc","修改服务出错");
+            System.out.println(e);
             return response.toJSONString();
         }
     }

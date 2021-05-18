@@ -17,9 +17,9 @@ public interface ActivityService {
 
     /**
      * 根据条件获取活动
-     * @param title,startTime,endTime
+     * @param title,startTime,endTime,state
      */
-    public List<Activity> getActivity(String title, Date startTime, Date endTime);
+    public List<Activity> getActivity(String title, Date startTime, Date endTime ,Integer state);
 
 
     /**
@@ -43,7 +43,17 @@ public interface ActivityService {
     public String addActivity(Activity activity);
 
 
+    /**
+     * 获取活动的参与人数
+     * @param actId
+     */
+    public Integer getJoinedNum(String actId);
 
+    /**
+     * 获取集满卡片的人数
+     * @param actId
+     */
+    public Integer getCompletedNum(String actId);
 
 
 
