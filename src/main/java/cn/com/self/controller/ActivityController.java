@@ -3,19 +3,26 @@ package cn.com.self.controller;
 
 import cn.com.self.domain.Activity;
 import cn.com.self.domain.User;
+import cn.com.self.domain.Card;
 import cn.com.self.service.ActivityService;
 import cn.com.self.service.AdminService;
+import cn.com.self.service.CardService;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import org.checkerframework.checker.units.qual.A;
+import org.checkerframework.checker.units.qual.C;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import sun.rmi.runtime.NewThreadAction;
 import tk.mybatis.mapper.entity.Example;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.text.ParseException;
+import java.util.UUID;
 
 
 @RestController
@@ -23,6 +30,9 @@ public class ActivityController {
 
     @Autowired
     private AdminService adminService;
+
+    @Autowired
+    private CardService cardService;
 
     @Autowired
     private ActivityService activityService;
@@ -220,4 +230,131 @@ public class ActivityController {
         return response.toJSONString();
     }
 
+    @RequestMapping(value = "titleCheck", method = RequestMethod.GET)
+    public String adminGetList(@RequestParam(value = "actId")String actId,
+                               @RequestParam(value = "actTitle")String actTitle) {
+
+
+        JSONObject response = new JSONObject();
+        JSONObject data = new JSONObject();
+        List<Activity> result = new ArrayList<Activity>();
+
+
+        if (actTitle.equals("")) {
+            response.put("code", 403);
+            response.put("desc", "请填写活动名称");
+            return response.toJSONString();
+        }
+        try {
+            result = activityService.getActivityByTitle(actTitle);
+            response.put("code", 200);
+            response.put("desc", "请求成功");
+            if (result.size() == 0) {
+                data.put("code", 1);
+                data.put("desc", "活动标题未被占用");
+            } else {
+                if (result.get(0).getActId() == actId) {
+                    data.put("code", 1);
+                    data.put("desc", "活动标题未被占用");
+                } else {
+                    data.put("code", 0);
+                    data.put("desc", "活动标题已被占用");
+                }
+            }
+            response.put("data", data);
+        } catch (Exception e) {
+            System.out.println(e);
+            response.put("code", 500);
+            response.put("desc", "查询活动服务错误");
+        }
+        return response.toJSONString();
+
+    }
+
+    @RequestMapping(value = "addActivity",method = RequestMethod.POST)
+    public String addActivity(@RequestBody JSONObject accept) throws ParseException {
+
+        JSONObject response = new JSONObject();
+        JSONObject data = new JSONObject();
+
+        String userId = accept.getString("userId");
+        String token = accept.getString("token");
+        String actTitle = accept.getString("actTitle");
+        String startTime = accept.getString("startTime");
+        String endTime = accept.getString("endTime");
+        Integer type = accept.getInteger(("type"));
+        String img = accept.getString("img");
+        String rule = accept.getString("rule");
+        JSONArray cardList = accept.getJSONArray("cardList");
+
+
+
+        DateFormat dateFormat2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date startTimeFormat = dateFormat2.parse(startTime);
+        Date endTimeFormat = dateFormat2.parse(endTime);
+        Date nowTime = new Date(System.currentTimeMillis());
+
+        if(userId.equals("")||token.equals("")){
+            response.put("code",403);
+            response.put("desc","请填写用户信息");
+            return response.toJSONString();
+        }
+        String actId = UUID.randomUUID().toString().replace("-","").substring(0,15);
+
+        Activity activity = new Activity();
+        activity.setActId(actId);
+        activity.setTitle(actTitle);
+        activity.setCreateTime(nowTime);
+        activity.setStartTime(startTimeFormat);
+        activity.setEndTime(endTimeFormat);
+        activity.setImg(img);
+        activity.setRule(rule);
+        activity.setTypeNumber(type);
+        // 超期
+        if(nowTime.compareTo(endTimeFormat)>=0){
+            activity.setStatus("2");
+        } else {
+            activity.setStatus("1");
+        }
+
+        try{
+            String addActStatus = activityService.addActivity(activity);
+            System.out.println(addActStatus);
+            if(addActStatus.equals("200")){
+                // 插入成功，插入card表
+                Card card = new Card();
+                for (int i=0;i<cardList.size();i++){
+                    String cardLog = UUID.randomUUID().toString().replace("-","").substring(0,15);
+                    String cardId = cardList.getJSONObject(i).getString("cardId");
+                    Float probability = cardList.getJSONObject(i).getFloat("probability");
+                    Card carditem = new Card();
+                    carditem.setActivityId(actId);
+                    carditem.setImg(cardId);
+                    carditem.setProbability(probability);
+                    carditem.setCardId(cardLog);
+                    Integer cardStatus = cardService.insertOneCard(carditem);
+                    if(cardStatus.equals(999)){
+                        throw new NullPointerException("添加卡片出错");
+                    }
+                }
+                response.put("code",200);
+                response.put("desc","请求成功");
+                data.put("code",1);
+                data.put("desc","活动新增成功");
+            } else{
+                response.put("code",200);
+                response.put("desc","请求成功");
+                data.put("code",0);
+                data.put("desc","活动新增失败");
+            }
+            response.put("data",data);
+            return response.toJSONString();
+        } catch (Exception e){
+            System.out.println(e);
+            response.put("code",500);
+            response.put("desc","注册服务错误");
+            return response.toJSONString();
+        }
+
+    }
 }
