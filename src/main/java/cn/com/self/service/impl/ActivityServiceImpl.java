@@ -159,6 +159,19 @@ public class ActivityServiceImpl implements ActivityService {
         }
     }
 
+    @Override
+    @Transactional(readOnly = false)
+    public int joinActivity(ActUsr actUsr){
+        int result = 999;
+        try{
+            result = actUsrMapper.insert(actUsr);
+            return result;
+        }catch (Exception e){
+            System.out.println(e);
+            return result;
+        }
+    }
+
 
 
 }

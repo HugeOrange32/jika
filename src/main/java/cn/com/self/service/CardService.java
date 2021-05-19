@@ -22,4 +22,7 @@ public interface CardService {
 
     public int insertDrawWater(DrawWater drawWater);
 
+
+    public List<DrawWater> getDrawWater(String userId,String actId);
+
 }

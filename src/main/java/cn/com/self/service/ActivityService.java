@@ -1,5 +1,6 @@
 package cn.com.self.service;
 
+import cn.com.self.domain.ActUsr;
 import cn.com.self.domain.Activity;
 import cn.com.self.domain.TbSysUser;
 import cn.com.self.domain.User;
@@ -61,6 +62,14 @@ public interface ActivityService {
      * @param actTitle
      */
     public List<Activity> getActivityByTitle(String actTitle);
+
+
+
+    /**
+     * 参加活动
+     * @param actUsr
+     */
+    public int joinActivity(ActUsr actUsr);
 
 
 }

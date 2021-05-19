@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -95,6 +96,20 @@ public class CardServiceImpl implements CardService {
         }catch (Exception e){
             System.out.println(e);
             return result;
+        }
+    }
+
+    @Override
+    public List<DrawWater> getDrawWater(String userId,String actId){
+        Example example = new Example(DrawWater.class);
+        example.createCriteria().andEqualTo("userId",userId).andEqualTo("actId",actId);
+        List<DrawWater> result = new ArrayList<DrawWater>();
+        try {
+            result = drawWaterMapper.selectByExample(example);
+            return result;
+        }catch (Exception e){
+            System.out.println(e);
+            return null;
         }
     }
 

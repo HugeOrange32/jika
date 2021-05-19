@@ -1,6 +1,7 @@
 package cn.com.self.controller;
 
 
+import cn.com.self.domain.ActUsr;
 import cn.com.self.domain.Activity;
 import cn.com.self.domain.User;
 import cn.com.self.domain.Card;
@@ -356,5 +357,57 @@ public class ActivityController {
             return response.toJSONString();
         }
 
+    }
+
+    @RequestMapping(value = "userJoinAct",method = RequestMethod.POST)
+    public String userJoinAct(@RequestBody JSONObject accept){
+        JSONObject response = new JSONObject();
+        JSONObject data = new JSONObject();
+        String userId = accept.getString("userId");
+        String token = accept.getString("token");
+        String actId = accept.getString("actId");
+
+        if(userId.equals("")||token.equals("")){
+            response.put("code",403);
+            response.put("desc","请填写用户信息");
+            return response.toJSONString();
+        }
+
+        User user = adminService.getUserById(userId);
+        if(!token.equals(user.getToken())||user.getUserGroup().equals("1")){
+            response.put("code",403);
+            response.put("desc","用户信息错误");
+            return response.toJSONString();
+        }
+
+        try{
+            ActUsr actUsr = new ActUsr();
+            actUsr.setActId(actId);
+            actUsr.setUserId(userId);
+            actUsr.setFirstShare("1");
+            actUsr.setCardDrawNums(3);
+            actUsr.setCardnum1(0);
+            actUsr.setCardnum2(0);
+            actUsr.setCardnum3(0);
+            actUsr.setCardnum4(0);
+            actUsr.setCardnum5(0);
+            int resultCode = activityService.joinActivity(actUsr);
+            if(resultCode==999){
+                throw new Exception("插入参加活动表失败");
+            }
+            else {
+                response.put("code",200);
+                response.put("desc","请求成功");
+                data.put("code",1);
+                data.put("desc","参与活动成功");
+                response.put("data",data);
+                return response.toJSONString();
+            }
+        }catch (Exception e){
+            System.out.println(e);
+            response.put("code",500);
+            response.put("desc","服务器错误");
+            return response.toJSONString();
+        }
     }
 }

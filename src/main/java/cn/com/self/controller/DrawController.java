@@ -10,10 +10,7 @@ import cn.com.self.service.CardService;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -128,6 +125,42 @@ public class DrawController {
             System.out.println(e);
             response.put("code",500);
             response.put("desc","请求失败");
+            return response.toJSONString();
+        }
+    }
+
+
+
+    @RequestMapping(value = "userDrawLog",method = RequestMethod.GET)
+    public String userDrawLog(@RequestParam(value = "userId")String userId,
+                              @RequestParam(value = "token")String token,
+                              @RequestParam(value = "actId")String actId){
+        JSONObject response = new JSONObject();
+        List<DrawWater> result = new ArrayList<DrawWater>();
+
+        if(userId.equals("")||token.equals("")){
+            response.put("code",403);
+            response.put("desc","请填写用户信息");
+            return response.toJSONString();
+        }
+
+        User user = adminService.getUserById(userId);
+        if(!token.equals(user.getToken())||user.getUserGroup().equals("1")){
+            response.put("code",403);
+            response.put("desc","用户信息错误");
+            return response.toJSONString();
+        }
+
+        try{
+            result = cardService.getDrawWater(userId,actId);
+            response.put("code",200);
+            response.put("desc","请求成功");
+            response.put("drawLog",result);
+            return response.toJSONString();
+        }catch (Exception e) {
+            System.out.println(e);
+            response.put("code",500);
+            response.put("desc","服务器错误");
             return response.toJSONString();
         }
     }
