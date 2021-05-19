@@ -28,7 +28,7 @@ public class ActivityController {
     private Object IOException;
 
     @RequestMapping(value = "adminGetList", method = RequestMethod.GET)
-    public String adminGetList(@RequestParam(value = "userID")String userId,
+    public String adminGetList(@RequestParam(value = "userId")String userId,
                                @RequestParam(value = "token")String token,
                                @RequestParam(value = "title")String title,
                                @RequestParam(value = "startTime",defaultValue = "2000-01-01 00:00:00") String startTime,
@@ -54,7 +54,7 @@ public class ActivityController {
         }
 
         try {
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             Date startTimeDate = simpleDateFormat.parse(startTime);
             Date endTimeDate = simpleDateFormat.parse(endTime);
 
