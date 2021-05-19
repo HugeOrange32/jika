@@ -1,2 +1,4 @@
-package cn.com.self.service;public interface HelpService {
+package cn.com.self.service;
+
+public interface HelpService {
 }
