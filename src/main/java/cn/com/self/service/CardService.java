@@ -2,6 +2,7 @@ package cn.com.self.service;
 
 import cn.com.self.domain.ActUsr;
 import cn.com.self.domain.Card;
+import cn.com.self.domain.DrawWater;
 
 import java.util.List;
 
@@ -18,5 +19,7 @@ public interface CardService {
 
     public int editActUsr(ActUsr actUsr);
 
+
+    public int insertDrawWater(DrawWater drawWater);
 
 }

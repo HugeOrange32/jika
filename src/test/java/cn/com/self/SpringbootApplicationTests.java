@@ -1,8 +1,10 @@
 package cn.com.self;
 
+import cn.com.self.domain.Card;
 import cn.com.self.domain.TbSysUser;
 import cn.com.self.domain.User;
 import cn.com.self.service.AdminService;
+import com.alibaba.fastjson.JSONArray;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,7 +15,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @RunWith(SpringRunner.class)
@@ -51,6 +55,7 @@ public class SpringbootApplicationTests {
         user.setRegisterTime(new Date(System.currentTimeMillis()));
         user.setUserGroup("0");
         user.setToken(UUID.randomUUID().toString().replace("-",""));
+
 
         System.out.println(adminService.register(user));
     }

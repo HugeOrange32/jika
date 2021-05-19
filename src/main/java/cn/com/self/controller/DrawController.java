@@ -3,9 +3,11 @@ package cn.com.self.controller;
 
 import cn.com.self.domain.ActUsr;
 import cn.com.self.domain.Card;
+import cn.com.self.domain.DrawWater;
 import cn.com.self.domain.User;
 import cn.com.self.service.AdminService;
 import cn.com.self.service.CardService;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -68,10 +71,14 @@ public class DrawController {
             }
             Double drawRandom =Math.random();
             Integer cardType = 9;
+            String insertCardId = "";
+            String cardImgType = "";
             for(int i=0;i<cardList.size();i++){
                 drawRandom = drawRandom-(double)cardList.get(i).getProbability();
                 if(drawRandom<0){
                     cardType = cardList.get(i).getCardType();
+                    insertCardId = cardList.get(i).getCardId();
+                    cardImgType = cardList.get(i).getImg();
                     break;
                 }
             }
@@ -92,23 +99,37 @@ public class DrawController {
                     actUsr.setCardnum5(actUsr.getCardnum5()+1);
                     break;
             }
-
+            actUsr.setCardDrawNums(actUsr.getCardDrawNums()-1);
             int editActUsrResult = cardService.editActUsr(actUsr);
             if(editActUsrResult==999){
                 throw new Exception("修改actUst失败");
             }
+            DrawWater drawWater = new DrawWater();
+            drawWater.setActId(actId);
+            drawWater.setCardId(insertCardId);
+            drawWater.setUserId(userId);
+            Date nowTime = new Date(System.currentTimeMillis());
+            drawWater.setDrawTime(nowTime);
+            int insertDrawWaterResult = cardService.insertDrawWater(drawWater);
+            if(insertDrawWaterResult==999){
+                throw new Exception("插入流水失败");
+            }
+            response.put("code",200);
+            response.put("desc","请求成功");
+            data.put("code",1);
+            data.put("desc","抽卡成功");
+            data.put("logId",insertCardId);
+            data.put("cardId",cardImgType);
+            data.put("getTime",nowTime);
+            response.put("data",data);
+            return response.toJSONString();
 
         }catch (Exception e){
             System.out.println(e);
+            response.put("code",500);
+            response.put("desc","请求失败");
+            return response.toJSONString();
         }
-
-
-
-
-
-
-
-        return response.toJSONString();
     }
 
 
