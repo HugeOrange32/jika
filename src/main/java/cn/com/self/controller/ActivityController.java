@@ -9,6 +9,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import sun.rmi.runtime.NewThreadAction;
 import tk.mybatis.mapper.entity.Example;
 
 import java.text.SimpleDateFormat;
@@ -40,15 +41,16 @@ public class ActivityController {
         JSONObject data = new JSONObject();
         List<Activity> result = new ArrayList<Activity>();
 
+
         if(userId.equals("")||token.equals("")){
-            response.put("code","403");
+            response.put("code",403);
             response.put("desc","请填写用户信息");
             return response.toJSONString();
         }
 
         User user = adminService.getUserById(userId);
         if(!token.equals(user.getToken())||user.getUserGroup().equals("0")){
-            response.put("code","403");
+            response.put("code",403);
             response.put("desc","用户信息错误");
             return response.toJSONString();
         }
@@ -57,15 +59,37 @@ public class ActivityController {
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             Date startTimeDate = simpleDateFormat.parse(startTime);
             Date endTimeDate = simpleDateFormat.parse(endTime);
+//            List<String> actList = new ArrayList<String>();
 
-            result = activityService.getActivity(title,startTimeDate,endTimeDate);
-            response.put("code","200");
+
+            result = activityService.getActivity(title,startTimeDate,endTimeDate,state);
+            response.put("code",200);
             response.put("desc","请求成功");
-            response.put("actList",result);
+            data.put("code",1);
+            data.put("desc","查询成功");
+
+            List<JSONObject> actList = new ArrayList<JSONObject>();
+            result.forEach(item->{
+                JSONObject listItem = new JSONObject();
+                Integer joinedNum = activityService.getJoinedNum(item.getActId());
+                Integer completeNum = activityService.getCompletedNum(item.getActId());
+                listItem.put("actId",item.getActId());
+                listItem.put("actTitle",item.getTitle());
+                listItem.put("createTime",simpleDateFormat.format(item.getCreateTime()));
+                listItem.put("startTime",simpleDateFormat.format(item.getStartTime()));
+                listItem.put("endTime",simpleDateFormat.format(item.getEndTime()));
+                listItem.put("state",Integer.parseInt(item.getStatus()));
+                listItem.put("joinedNum",joinedNum);
+                listItem.put("completeNum",completeNum);
+                actList.add(listItem);
+            });
+            data.put("actList",actList);
+            System.out.println(actList);
+            response.put("data",data);
 
         }catch (Exception e){
             System.out.println(e);
-            response.put("code","500");
+            response.put("code",500);
             response.put("desc","查询活动服务错误");
             return response.toJSONString();
         }
@@ -85,20 +109,20 @@ public class ActivityController {
         upList = JSONObject.parseArray(upJson.toJSONString(),String.class);
 
         if(userId.equals("")||token.equals("")){
-            response.put("code","403");
+            response.put("code",403);
             response.put("desc","请填写用户信息");
             return response.toJSONString();
         }
 
         User user = adminService.getUserById(userId);
         if(!token.equals(user.getToken())||user.getUserGroup().equals("0")){
-            response.put("code","403");
+            response.put("code",403);
             response.put("desc","用户信息错误");
             return response.toJSONString();
         }
 
         if(upList.size()==0){
-            response.put("code","403");
+            response.put("code",403);
             response.put("desc","空请求");
             return response.toJSONString();
         }
@@ -124,12 +148,12 @@ public class ActivityController {
                     }
                 }
             }
-            response.put("code","200");
+            response.put("code",200);
             response.put("desc","上架成功");
             response.put("actList",upSuccess);
         }catch (Exception e){
             System.out.println(e);
-            response.put("code","500");
+            response.put("code",500);
             response.put("desc","查询活动服务错误");
             return response.toJSONString();
         }
@@ -150,20 +174,20 @@ public class ActivityController {
         downList = JSONObject.parseArray(downJson.toJSONString(),String.class);
 
         if(userId.equals("")||token.equals("")){
-            response.put("code","403");
+            response.put("code",403);
             response.put("desc","请填写用户信息");
             return response.toJSONString();
         }
 
         User user = adminService.getUserById(userId);
         if(!token.equals(user.getToken())||user.getUserGroup().equals("0")){
-            response.put("code","403");
+            response.put("code",403);
             response.put("desc","用户信息错误");
             return response.toJSONString();
         }
 
         if(downList.size()==0){
-            response.put("code","403");
+            response.put("code",403);
             response.put("desc","空请求");
             return response.toJSONString();
         }
@@ -184,12 +208,12 @@ public class ActivityController {
                     }
                 }
             }
-            response.put("code","200");
+            response.put("code",200);
             response.put("desc","上架成功");
             response.put("actList",downSuccess);
         }catch (Exception e){
             System.out.println(e);
-            response.put("code","500");
+            response.put("code",500);
             response.put("desc","查询活动服务错误");
             return response.toJSONString();
         }

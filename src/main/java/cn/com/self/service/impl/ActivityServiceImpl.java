@@ -1,8 +1,10 @@
 package cn.com.self.service.impl;
 
+import cn.com.self.domain.ActUsr;
 import cn.com.self.domain.Activity;
 import cn.com.self.domain.TbSysUser;
 import cn.com.self.domain.User;
+import cn.com.self.mapper.ActUsrMapper;
 import cn.com.self.mapper.ActivityMapper;
 import cn.com.self.mapper.TbSysUserMapper;
 import cn.com.self.mapper.UserMapper;
@@ -31,6 +33,9 @@ public class ActivityServiceImpl implements ActivityService {
     @Autowired
     private ActivityMapper activityMapper;
 
+    @Autowired
+    private ActUsrMapper actUsrMapper;
+
     @Override
     public List<Activity> getAllActivity(){
         List<Activity> result = new ArrayList<Activity>();
@@ -44,15 +49,25 @@ public class ActivityServiceImpl implements ActivityService {
     }
 
     @Override
-    public List<Activity> getActivity(String title, Date startTime, Date endTime){
+    public List<Activity> getActivity(String title, Date startTime, Date endTime,Integer state){
         List<Activity> result = new ArrayList<Activity>();
         Example example = new Example(Activity.class);
-        if(title.equals("")){
-            example.createCriteria().andBetween("createTime",startTime,endTime);
+        if(state==null){
+            if(title.equals("")){
+                example.createCriteria().andBetween("createTime",startTime,endTime);
+            }
+            else {
+                example.createCriteria().andEqualTo("title", title).andBetween("createTime", startTime, endTime);
+            }
+        } else {
+            if(title.equals("")){
+                example.createCriteria().andEqualTo("status",state).andBetween("createTime",startTime,endTime);
+            }
+            else {
+                example.createCriteria().andEqualTo("title", title).andEqualTo("status",state).andBetween("createTime", startTime, endTime);
+            }
         }
-        else {
-            example.createCriteria().andEqualTo("title", title).andBetween("createTime", startTime, endTime);
-        }
+
         try {
             result = activityMapper.selectByExample(example);
         }catch (Exception e){
@@ -99,6 +114,35 @@ public class ActivityServiceImpl implements ActivityService {
         }
     }
 
+    @Override
+    public Integer getJoinedNum(String actId){
+        Integer result = 0;
+        Example example = new Example(ActUsr.class);
+        try{
+            example.createCriteria().andEqualTo("actId",actId);
+            result = actUsrMapper.selectByExample(example).size();
+            return result;
+        }
+        catch (Exception e){
+            System.out.println(e);
+            return 0;
+        }
+    }
+
+    @Override
+    public Integer getCompletedNum(String actId){
+        Integer result = 0;
+        Example example = new Example(ActUsr.class);
+        try{
+            example.createCriteria().andEqualTo("actId",actId).andNotEqualTo("cardnum1",0).andNotEqualTo("cardnum2",0).andNotEqualTo("cardnum3",0).andNotEqualTo("cardnum4",0).andNotEqualTo("cardnum5",0);
+            result = actUsrMapper.selectByExample(example).size();
+            return result;
+        }
+        catch (Exception e){
+            System.out.println(e);
+            return 0;
+        }
+    }
 
 
 }
