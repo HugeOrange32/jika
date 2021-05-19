@@ -16,8 +16,12 @@ public interface CardService {
 
     public ActUsr getActUsrById(String userId,String actId);
 
+    public int getActUsrByActIdCount(String actId);
+
 
     public int editActUsr(ActUsr actUsr);
+
+    public int editCard(Card card);
 
 
     public int insertDrawWater(DrawWater drawWater);
