@@ -21,6 +21,12 @@ public interface ActivityService {
      */
     public List<Activity> getActivity(String title, Date startTime, Date endTime ,Integer state);
 
+    /**
+     * 根据state获取活动
+     * @param state
+     */
+    public List<Activity> getActivityByState(Integer state);
+
 
     /**
      * 根据id获取活动
@@ -61,6 +67,7 @@ public interface ActivityService {
      * @param actTitle
      */
     public List<Activity> getActivityByTitle(String actTitle);
+
 
 
 }

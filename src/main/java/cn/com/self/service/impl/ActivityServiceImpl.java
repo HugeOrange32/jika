@@ -91,6 +91,7 @@ public class ActivityServiceImpl implements ActivityService {
 
 
     @Override
+    @Transactional(readOnly = false)
     public Integer editActivity(Activity activity){
         Integer result = 999;
         try{
@@ -151,6 +152,20 @@ public class ActivityServiceImpl implements ActivityService {
         Example example = new Example(Activity.class);
         try{
             example.createCriteria().andEqualTo("title",actTitle);
+            result = activityMapper.selectByExample(example);
+            return result;
+        }catch (Exception e){
+            System.out.println(e);
+            return null;
+        }
+    }
+
+    @Override
+    public List<Activity> getActivityByState(Integer state){
+        List<Activity> result = new ArrayList<Activity>();
+        Example example = new Example(Activity.class);
+        try{
+            example.createCriteria().andEqualTo("status",state);
             result = activityMapper.selectByExample(example);
             return result;
         }catch (Exception e){

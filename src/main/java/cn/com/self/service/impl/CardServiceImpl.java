@@ -77,5 +77,31 @@ public class CardServiceImpl implements CardService {
         }
     }
 
+    @Override
+    public int getActUsrByActIdCount(String actId){
+        Example example = new Example(ActUsr.class);
+        example.createCriteria().andEqualTo("actId",actId);
+        try {
+            int result = actUsrMapper.selectCountByExample(example);
+            return result;
+        }catch (Exception e){
+            System.out.println(e);
+            return 0;
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public int editCard(Card card){
+        int result = 999;
+        try{
+            result = cardMapper.updateByPrimaryKey(card);
+            return result;
+        }catch (Exception e){
+            System.out.println(e);
+            return result;
+        }
+    }
+
 
 }

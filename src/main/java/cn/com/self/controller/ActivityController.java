@@ -1,6 +1,7 @@
 package cn.com.self.controller;
 
 
+import cn.com.self.domain.ActUsr;
 import cn.com.self.domain.Activity;
 import cn.com.self.domain.User;
 import cn.com.self.domain.Card;
@@ -356,5 +357,220 @@ public class ActivityController {
             return response.toJSONString();
         }
 
+    }
+
+    @RequestMapping(value = "adminGetDetail", method = RequestMethod.GET)
+    public String adminGetDetail(@RequestParam(value = "actId")String actId,
+                                 @RequestParam(value = "token")String token,
+                                 @RequestParam(value = "userId")String userId) {
+
+
+        JSONObject response = new JSONObject();
+        JSONObject data = new JSONObject();
+        Activity result = new Activity();
+        List<Card> cardRes = new ArrayList<Card>();
+        List<JSONObject> cardList = new ArrayList<JSONObject>();
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+
+        if (token.equals("")||userId.equals("")) {
+            response.put("code", 400);
+            response.put("desc", "请填写正确的用户信息");
+            return response.toJSONString();
+        }
+        if (actId.equals("")) {
+            response.put("code", 403);
+            response.put("desc", "请传入活动ID");
+            return response.toJSONString();
+        }
+        try {
+            result = activityService.getActivityById(actId);
+            response.put("code", 200);
+            response.put("desc", "请求成功");
+            if (result != null) {
+                data.put("code", 1);
+                data.put("desc", "查询成功");
+                data.put("actTitle",result.getTitle());
+                data.put("actPic",result.getImg());
+                data.put("startTime",simpleDateFormat.format(result.getStartTime()));
+                data.put("endTime",simpleDateFormat.format(result.getStartTime()));
+                data.put("type",result.getTypeNumber());
+                data.put("rule",result.getRule());
+                cardRes = cardService.getCardByActId(actId);
+                for(int i=0;i<cardRes.size();i++){
+                    JSONObject cardItem = new JSONObject();
+                    cardItem.put("id",cardRes.get(i).getImg());
+                    cardItem.put("probability",cardRes.get(i).getProbability());
+                    cardList.add(cardItem);
+                }
+                data.put("cardList",cardList);
+            } else {
+
+                    data.put("code", 0);
+                    data.put("desc", "查询失败");
+            }
+            response.put("data", data);
+        } catch (Exception e) {
+            System.out.println(e);
+            response.put("code", 500);
+            response.put("desc", "查询活动服务错误");
+        }
+        return response.toJSONString();
+
+    }
+
+    @RequestMapping(value = "editActivity",method = RequestMethod.POST)
+    public String editActivity(@RequestBody JSONObject accept) throws ParseException {
+
+        JSONObject response = new JSONObject();
+        JSONObject data = new JSONObject();
+
+        String userId = accept.getString("userId");
+        String token = accept.getString("token");
+        String actTitle = accept.getString("actTitle");
+        String startTime = accept.getString("startTime");
+        String endTime = accept.getString("endTime");
+        Integer type = accept.getInteger(("type"));
+        String img = accept.getString("img");
+        String rule = accept.getString("rule");
+        JSONArray cardList = accept.getJSONArray("cardList");
+        String actId = accept.getString("actId");
+
+
+
+        DateFormat dateFormat2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date startTimeFormat = dateFormat2.parse(startTime);
+        Date endTimeFormat = dateFormat2.parse(endTime);
+        Date nowTime = new Date(System.currentTimeMillis());
+
+        if(userId.equals("")||token.equals("")){
+            response.put("code",403);
+            response.put("desc","请填写用户信息");
+            return response.toJSONString();
+        }
+
+        Activity activity = activityService.getActivityById(actId);
+        if(!actTitle.equals("")){
+            activity.setTitle(actTitle);
+        }
+        if(!startTime.equals("")){
+            activity.setStartTime(startTimeFormat);
+        }
+        if(!endTime.equals("")){
+            activity.setEndTime(endTimeFormat);
+            // 超期
+            if(nowTime.compareTo(endTimeFormat)>=0){
+                activity.setStatus("2");
+            } else {
+                activity.setStatus("1");
+            }
+        }
+        if(!rule.equals("")){
+            activity.setRule(rule);
+        }
+        int joinedNum = cardService.getActUsrByActIdCount(actId);
+        if(joinedNum == 0){
+            if(!img.equals("")){
+                activity.setImg(img);
+            }
+            if(type>=0){
+                activity.setTypeNumber(type);
+            }
+        }
+
+
+        try{
+            Integer editRes = activityService.editActivity(activity);
+            System.out.println(editRes);
+            if(editRes!= 999){
+                // 修改成功
+                List<Card> cardData = cardService.getCardByActId(actId);
+                for (int i=0;i<cardList.size();i++){
+                    Float probability = cardList.getJSONObject(i).getFloat("probability");
+                    String cardId = cardList.getJSONObject(i).getString("cardId");
+                    Card carditem = cardData.get(i);
+                    carditem.setImg(cardId);
+                    carditem.setProbability(probability);
+                    Integer cardStatus = cardService.editCard(carditem);
+                    if(cardStatus == 999){
+                        throw new NullPointerException("修改卡片出错");
+                    }
+                }
+                response.put("code",200);
+                response.put("desc","请求成功");
+                data.put("code",1);
+                data.put("desc","修改活动成功");
+            } else{
+                response.put("code",200);
+                response.put("desc","请求成功");
+                data.put("code",0);
+                data.put("desc","修改活动失败");
+            }
+            response.put("data",data);
+            return response.toJSONString();
+        } catch (Exception e){
+            System.out.println(e);
+            response.put("code",500);
+            response.put("desc","服务错误");
+            return response.toJSONString();
+        }
+
+    }
+
+    @RequestMapping(value = "userGetList", method = RequestMethod.GET)
+    public String userGetList(@RequestParam(value = "userId")String userId,
+                               @RequestParam(value = "token")String token ){
+
+
+        JSONObject response = new JSONObject();
+        JSONObject data = new JSONObject();
+        List<Activity> result = new ArrayList<Activity>();
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+
+        if(userId.equals("")||token.equals("")){
+            response.put("code",403);
+            response.put("desc","请填写用户信息");
+            return response.toJSONString();
+        }
+
+        User user = adminService.getUserById(userId);
+
+        try {
+            result = activityService.getActivityByState(1);
+            result.addAll(activityService.getActivityByState(2));
+            response.put("code",200);
+            response.put("desc","请求成功");
+            data.put("code",1);
+            data.put("desc","查询成功");
+
+            List<JSONObject> actList = new ArrayList<JSONObject>();
+            result.forEach(item->{
+                ActUsr actUsr = cardService.getActUsrById(userId,item.getActId());
+                JSONObject listItem = new JSONObject();
+                listItem.put("actId",item.getActId());
+                listItem.put("actTitle",item.getTitle());
+                listItem.put("startTime",simpleDateFormat.format(item.getStartTime()));
+                listItem.put("endTime",simpleDateFormat.format(item.getEndTime()));
+                listItem.put("state",Integer.parseInt(item.getStatus()));
+                listItem.put("img",item.getImg());
+                if(actUsr == null){
+                    listItem.put("have",0);
+                }else{
+                    listItem.put("have",1);
+                }
+                actList.add(listItem);
+            });
+            data.put("actList",actList);
+            System.out.println(actList);
+            response.put("data",data);
+
+        }catch (Exception e){
+            System.out.println(e);
+            response.put("code",500);
+            response.put("desc","查询活动服务错误");
+            return response.toJSONString();
+        }
+        return response.toJSONString();
     }
 }
