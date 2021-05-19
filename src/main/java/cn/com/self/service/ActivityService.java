@@ -56,7 +56,11 @@ public interface ActivityService {
     public Integer getCompletedNum(String actId);
 
 
-
+    /**
+     * 校验活动名是否唯一
+     * @param actTitle
+     */
+    public List<Activity> getActivityByTitle(String actTitle);
 
 
 }

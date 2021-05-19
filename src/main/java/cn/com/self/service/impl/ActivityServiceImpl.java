@@ -110,6 +110,7 @@ public class ActivityServiceImpl implements ActivityService {
             Integer result = activityMapper.insert(activity);
             return "200";
         }catch (Exception e){
+            System.out.println(e);
             return "403";
         }
     }
@@ -143,6 +144,21 @@ public class ActivityServiceImpl implements ActivityService {
             return 0;
         }
     }
+
+    @Override
+    public List<Activity> getActivityByTitle(String actTitle){
+        List<Activity> result = new ArrayList<Activity>();
+        Example example = new Example(Activity.class);
+        try{
+            example.createCriteria().andEqualTo("title",actTitle);
+            result = activityMapper.selectByExample(example);
+            return result;
+        }catch (Exception e){
+            System.out.println(e);
+            return null;
+        }
+    }
+
 
 
 }
